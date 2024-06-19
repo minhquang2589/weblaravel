@@ -11,9 +11,6 @@
 </style>
 <!DOCTYPE html>
 <html>
-<!-- bg-[url('/storage/app/public/bgrtailwind.png')] -->
-<!-- https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80 -->
-
 <body class="">
   <section>
     <div class="mx-auto max-w-screen-2xl px-4 py-16 sm:px-6 lg:px-8">

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name', 255);
             $table->text('description') -> default(null);
             $table->bigInteger('price');
+            $table->string('class', 100);
             $table->unsignedBigInteger('cate_id');
-            $table->unsignedBigInteger('detail_id');
             $table->unsignedBigInteger('sales_count')->default(0);
             $table->boolean('is_new')->default(false);
             $table->foreign('cate_id')->references('id')->on('product_cates')->onDelete('cascade');

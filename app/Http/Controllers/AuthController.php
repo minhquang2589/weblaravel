@@ -36,6 +36,7 @@ class AuthController extends Controller
             'product_name' => 'required|string',
             'price' => 'required',
             'gender' => 'required',
+            'class' => 'required',
             'colors.*' => 'required',
             'quantities.*' => 'required',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -68,24 +69,23 @@ class AuthController extends Controller
                 'gender' => $request->input('gender'),
                 'description' => "For " . $request->input('gender')
             ]);
-
-            $productDetails = new ProductDetails();
-            $productDetails->description1 = $request->input('detail1');
-            $productDetails->description2 = $request->input('detail2');
-            $productDetails->description3 = $request->input('detail3');
-            $productDetails->description4 = $request->input('detail4');
-            $productDetails->description5 = $request->input('detail5');
-            $productDetails->description6 = $request->input('detail6');
-            $productDetails->save();
-
             $product = new Product();
-            $product->name = $request->input('product_name');
-            $product->price = $request->input('price');
-            $product->description = $request->description;
+            $product->name = $request->product_name;
+            $product->price = $request->price;
+            $product->description =  $request->description;
+            $product->class =  $request->class;
             $product->cate_id = $ProductCates->id;
-            $product->detail_id = $productDetails->id;
-            $product->is_new = $is_new;
+            $product->is_new = $request->is_new;
             $product->save();
+            if ($request->details) {
+                foreach ($request->details as $detail) {
+                    $productDetails = new ProductDetails();
+                    $productDetails->product_id =  $product->id;
+                    $productDetails->description = $detail;
+                    $productDetails->save();
+                }
+            }
+
 
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {

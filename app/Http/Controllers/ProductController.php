@@ -59,6 +59,7 @@ class ProductController extends Controller
       $colorIds = $productVariants->pluck('color_id')->unique()->filter();
       $sizes = Size::whereIn('id', $sizeIds)->get();
       $colors = Color::whereIn('id', $colorIds)->get();
+
       $productkankei = Product::inRandomOrder()->take(10)->select(
          'products.id',
          'products.name',
@@ -88,21 +89,15 @@ class ProductController extends Controller
 
       $product_info = DB::table('products')
          ->join('product_cates', 'products.cate_id', '=', 'product_cates.id')
-         ->join('product_details', 'products.detail_id', '=', 'product_details.id')
          ->select(
             'products.*',
             'product_cates.gender as category_name',
             'product_cates.gender as category_genter',
-            'product_details.description1 as product_description1',
-            'product_details.description2 as product_description2',
-            'product_details.description3 as product_description3',
-            'product_details.description4 as product_description4',
-            'product_details.description5 as product_description5',
-            'product_details.description6 as product_description6',
          )
          ->where('products.id', '=', $id)
          ->first();
-
+      $productDetails = ProductDetails::where('product_id', $product->id)->get();
+      // dd($productDetails);
 
       return view('auth.viewproduct', [
          'product_info' => $product_info,
@@ -111,6 +106,7 @@ class ProductController extends Controller
          'sizes' => $sizes,
          'colors' => $colors,
          'productkankei' => $productkankei,
+         'productDetails' => $productDetails,
 
       ]);
    }

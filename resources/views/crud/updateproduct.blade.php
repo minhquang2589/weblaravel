@@ -123,7 +123,15 @@
          <input require type="text" value="{{$product->price}}" name="price" id="price" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" />
          <label for="price" name="price" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Price</label>
       </div>
-
+      <div id="detailsContainer">
+         @foreach($ProductDetails as $index => $detail)
+         <div class="relative z-0 w-full mb-5 group">
+            <input type="text" name="details[]" id="detail_{{ $index }}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" value="{{ $detail->description }}" />
+            <label for="detail_{{ $index }}" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Detail</label>
+         </div>
+         @endforeach
+      </div>
+      <button type="button" id="addDetailButton" class="block mb-2 mt-1 rounded-xl bg-gray-400 px-6 py-1 text-sm text-white transition hover:bg-gray-500">Add Detail</button>
       <div class="form-group flex">
          <label>
             <input class="size-4 rounded border-gray-300" type="checkbox" name="is_new" {{ $product->is_new == 1 ? 'checked' : '' }}>
@@ -135,7 +143,7 @@
          <input require class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="images" for="images" type="file" id="image-input" name="images[]" multiple>
       </div>
       <div class="colorInputs mt-3" id="colorInputs"> </div>
-      <button class="block mr-2 rounded-xl bg-gray-400 px-8 py-1 text-sm text-white transition hover:bg-gray-500" type="button" onclick="addColorInput()">Add color and quantity</button>
+      <button class="block mr-2 rounded-xl bg-gray-400 px-8 py-1 text-sm text-white transition hover:bg-gray-500" type="button" onclick="addColorInput()">Add color</button>
       <div class="mt-4">
          <div class="w-full mr-5">
             <div class="">
@@ -161,36 +169,22 @@
 </div>
 </div>
 <script>
-   let colorCounter = 0;
-
-   function addColorInput() {
-      const colorInputsDiv = document.getElementById("colorInputs");
-      const colorInputDiv = document.createElement("div");
-      colorInputDiv.classList.add("color-input");
-      const colorLabel = document.createElement("label");
-      colorLabel.textContent = "Color:";
-      const colorInput = document.createElement("input");
-      colorInput.type = "text";
-      colorInput.name = `colors[${colorCounter}]`;
-      colorInputDiv.appendChild(colorLabel);
-      colorInputDiv.appendChild(colorInput);
-      const br = document.createElement("br");
-      colorInputDiv.appendChild(br);
-      const sizes = ["S", "M", "L", "XL", "2XL"];
-      sizes.forEach((size, index) => {
-         const sizeLabel = document.createElement("label");
-         sizeLabel.textContent = `Size ${size}:`;
-         const quantityInput = document.createElement("input");
-         quantityInput.type = "number";
-         quantityInput.name = `quantities[${colorCounter}][${size}]`;
-         const br = document.createElement("br");
-         colorInputDiv.appendChild(sizeLabel);
-         colorInputDiv.appendChild(quantityInput);
-         colorInputDiv.appendChild(br);
+   document.addEventListener("DOMContentLoaded", function() {
+      let detailIndex = 1;
+      document.getElementById('addDetailButton').addEventListener('click', function() {
+         const detailsContainer = document.getElementById('detailsContainer');
+         const newDetailDiv = document.createElement('div');
+         newDetailDiv.classList.add('relative', 'z-0', 'w-full', 'mb-5', 'group');
+         newDetailDiv.innerHTML = `
+                    <input type="text" name="details[]" id="detail_${detailIndex}" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" />
+                    <label for="detail_${detailIndex}" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Detail</label>
+                `;
+         detailsContainer.appendChild(newDetailDiv);
+         detailIndex++;
       });
-      colorInputsDiv.appendChild(colorInputDiv);
-      colorCounter++;
-   }
+      ////
+
+   });
    ClassicEditor
       .create(document.querySelector('#editor'), {
          ckfinder: {
@@ -200,6 +194,57 @@
       .catch(error => {
          console.error(error);
       });
+
+   let colorCounter = 0;
+
+   function addColorInput() {
+
+      const colorInputsDiv = document.getElementById("colorInputs");
+      const colorInputDiv = document.createElement("div");
+      colorInputDiv.classList.add("color-input", "mb-4");
+      const colorLabel = document.createElement("label");
+      colorLabel.textContent = "Color:";
+      const colorInput = document.createElement("input");
+      colorInput.type = "text";
+      colorInput.name = `colors[${colorCounter}]`;
+      colorInputDiv.appendChild(colorLabel);
+      colorInputDiv.appendChild(colorInput);
+      const sizesDiv = document.createElement("div");
+      sizesDiv.classList.add("sizes");
+      sizesDiv.dataset.colorIndex = colorCounter;
+      const addSizeButton = document.createElement("button");
+      addSizeButton.type = "button";
+      addSizeButton.textContent = "Add size";
+      addSizeButton.onclick = function() {
+         const colorIndex = parseInt(sizesDiv.dataset.colorIndex);
+         addSizeInput(sizesDiv, colorIndex);
+      };
+      colorInputDiv.appendChild(sizesDiv);
+      colorInputDiv.appendChild(addSizeButton);
+      colorInputsDiv.appendChild(colorInputDiv);
+      colorCounter++;
+   }
+
+   function addSizeInput(sizesDiv, colorIndex) {
+      const sizeDiv = document.createElement("div");
+      sizeDiv.classList.add("size-input", "mt-2");
+      const sizeLabel = document.createElement("label");
+      sizeLabel.textContent = "Size:";
+      const sizeInput = document.createElement("input");
+      sizeInput.type = "text";
+      const quantityLabel = document.createElement("label");
+      quantityLabel.textContent = "Quantity:";
+      const quantityInput = document.createElement("input");
+      quantityInput.type = "number";
+      sizeInput.oninput = function() {
+         quantityInput.name = `quantities[${colorIndex}][${sizeInput.value}]`;
+      };
+      sizeDiv.appendChild(sizeLabel);
+      sizeDiv.appendChild(sizeInput);
+      sizeDiv.appendChild(quantityLabel);
+      sizeDiv.appendChild(quantityInput);
+      sizesDiv.appendChild(sizeDiv);
+   }
 </script>
 
 @endsection

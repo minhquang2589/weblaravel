@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\size;
 use App\Models\color;
 use App\Models\ProductCates;
+use App\Models\ProductDetails;
 use App\Models\Discounts;
 use App\Models\Images;
 use App\Models\product_variants;
@@ -34,12 +35,10 @@ class CRUDController extends Controller
             $colors[] = $color ? $color->color : '';
             $quantities[] = $variant->quantity;
         }
-        function getProductVariants()
-        {
-            $productVariants = product_variants::with('size', 'color')->get();
-            return $productVariants;
-        }
-        $stock = getProductVariants();
+        $stock = product_variants::with('size', 'color')
+            ->where('product_id', $product->id)
+            ->get();
+
         foreach ($stock as $productVariant) {
             $size = $productVariant->size;
             $color = $productVariant->color;
@@ -60,6 +59,8 @@ class CRUDController extends Controller
             ->first();
 
         $productCate = ProductCates::where('id', $product->cate_id)->first();
+        $ProductDetails = ProductDetails::where('product_id', $product->id)->get();
+        // dd($sizes, $colors);
         return view('crud.updateproduct', [
             'discountInfo' => $discountInfo,
             'product' => $product,
@@ -68,13 +69,14 @@ class CRUDController extends Controller
             'sizes' => $sizes,
             'colors' => $colors,
             'quantities' => $quantities,
-            'productCate' => $productCate
+            'productCate' => $productCate,
+            'ProductDetails' => $ProductDetails
         ]);
     }
     //////////////////////////// update ////////////////////////////////////////////
     public function update(Request $request)
     {
-
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|string',
             'price' => 'required',
@@ -93,8 +95,20 @@ class CRUDController extends Controller
         $product->is_new = $request->has('is_new') ? 1 : 0;
         $product->save();
 
+        $ProductDetails = ProductDetails::where('product_id', $product->id);
+        if ($ProductDetails->exists() && $request->details != null) {
+            $ProductDetails->delete();
+            foreach ($request->details as $detail) {
+                $productDetails = new ProductDetails();
+                $productDetails->product_id = $product->id;
+                $productDetails->description = $detail;
+                $productDetails->save();
+            }
+        }
+
         $productCate = ProductCates::where('id', $product->cate_id)->first();
         $productCate->gender = $request->input('gender');
+        $productCate->description = "For " . $request->input('gender');
         $productCate->save();
 
         if ($request->hasFile('images')) {
@@ -113,53 +127,42 @@ class CRUDController extends Controller
             }
         }
 
-        if ($request->has('colors') && $request->has('quantities')) {
-            $colors = $request->colors;
-            $quantities = $request->quantities;
-            foreach ($colors as $key => $color) {
-                $sizes = $quantities[$key];
-                $colorModel = Color::updateOrCreate(['color' => $color]);
-                foreach ($sizes as $size => $quantity) {
-                    if (!empty($quantity)) {
-                        $sizeModel = Size::updateOrCreate(['size' => $size]);
-                        $productVariant = ProductVariant::updateOrCreate(
-                            [
-                                'product_id' => $product->id,
-                                'size_id' => $sizeModel->id,
-                                'color_id' => $colorModel->id,
-                            ],
-                            ['quantity' => $quantity]
-                        );
-                    }
-                }
-            }
-        }
-
         $discount = Discounts::whereHas('productVariants', function ($query) use ($product) {
             $query->where('product_id', $product->id);
         })->orderBy('created_at', 'desc')->first();
+        // dd($request->all());
 
-        foreach ($request->except('_token', 'product_name', 'price', 'description', 'images', 'is_new') as $colorName => $sizes) {
-            if (is_array($sizes) && array_filter($sizes)) {
-                $colorModel = Color::firstOrCreate(['color' => $colorName]);
-                foreach ($sizes as $size => $quantity) {
-                    if (!empty($quantity)) {
-                        $sizeModel = Size::firstOrCreate(['size' => $size]);
-                        $productVariant = ProductVariant::updateOrCreate(
-                            [
+        if ($request->has('colors')) {
+            $colors = $request->colors;
+            foreach ($colors as $colorName => $sizeData) {
+                $colorModel = Color::updateOrCreate(['color' => $colorName]);
+                $totalQuantity = 0;
+                foreach ($sizeData as $sizeName => $quantity) {
+                    if ($quantity !== null) {
+                        $totalQuantity += $quantity;
+                        $sizeModel = Size::updateOrCreate(['size' => $sizeName]);
+                        $productVariant = ProductVariant::where([
+                            'product_id' => $product->id,
+                            'size_id' => $sizeModel->id,
+                            'color_id' => $colorModel->id,
+                        ])->first();
+                        if ($productVariant) {
+                            $productVariant->quantity = $quantity;
+                            $productVariant->save();
+                        } else {
+                            $productVariant = ProductVariant::create([
                                 'product_id' => $product->id,
                                 'size_id' => $sizeModel->id,
                                 'color_id' => $colorModel->id,
-                            ],
-                            [
-                                'quantity' => $quantity,
                                 'discount_id' => $discount ? $discount->id : null,
-                            ]
-                        );
+                                'quantity' => $quantity,
+                            ]);
+                        }
                     }
                 }
             }
         }
+
         return redirect()->back()->with('success', 'Product updated successfully!');
     }
     ////////////////////////////////////////////////////////////////////////

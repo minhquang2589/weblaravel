@@ -42,7 +42,6 @@ Route::get('/welcome', function () {
 //////// 
 Route::get('/', [UserController::class, 'product'])->name('product');
 Route::get('/get-product', [UserController::class, 'getProduct'])->name('get.product');
-Route::get('/api/products', [ReactController::class, 'index']);
 //////
 Route::get('/error', [SectionController::class, 'error'])->name('error.page');
 Route::get('/size-guize', [HomeController::class, 'size'])->name('size.guize');
@@ -105,7 +104,6 @@ Route::middleware(['checkRole'])->group(function () {
     Route::get('admin/', [AdminController::class, 'index']);
     Route::post('/upload-img', [AuthController::class, 'store'])->name('upload.img');
     Route::post('/upload/file', [AuthController::class, 'uploadFile'])->name('upload.file');
-
     Route::get('/product/{id}/edit', [CRUDController::class, 'edit'])->name('product.edit');
     Route::post('/product/{id}/update', [CRUDController::class, 'update'])->name('update.product');
     Route::get('/productmanagement', [ProductController::class, 'product'])->name('productmanagement');
@@ -115,14 +113,12 @@ Route::middleware(['checkRole'])->group(function () {
     Route::get('/featuredsection', [SectionController::class, 'featuredsection'])->name('featuredsection');
     Route::post('/featuredsection/edit', [SectionController::class, 'featuredsectionEdit'])->name('featuredsection.edit');
     Route::post('/featuredsection/update', [SectionController::class, 'featuredsectionsUpdate'])->name('featuredsection.update');
-
     Route::get('/section/nd', [SectionController::class, 'section_02'])->name('section.nd');
     Route::post('/section-edit', [SectionController::class, 'section_02Edit'])->name('section_02.edit');
     Route::get('/section/{section_id}', [SectionController::class, 'section_02Update'])->name('section_02.update');
     Route::post('/section/update', [SectionController::class, 'sectionUpdate'])->name('section.update');
     Route::get('/section-upload', [SectionController::class, 'upload_section'])->name('upload.section');
     Route::post('/section-delete', [SectionController::class, 'section_02Delete'])->name('section_02.delete');
-
     Route::get('/producttable', [TableController::class, 'index'])->name('producttable');
     Route::get('/usermanagement', [UserManagementController::class, 'index'])->name('usermanagement');
     Route::delete('/usermanagement/delete/{id}', [UserManagementController::class, 'delete'])->name('usermanagement.delete');

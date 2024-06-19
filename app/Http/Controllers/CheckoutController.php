@@ -31,14 +31,7 @@ use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
-    // protected $emailController;
-
-    // public function __construct(EmailController $emailController)
-    // {
-    //     $this->emailController = $emailController;
-    // }
-
-    //
+   
     public function index(Request $request)
     {
 

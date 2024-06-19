@@ -7,6 +7,7 @@
     pointer-events: none;
   }
 
+
   .out-of-stock-button:hover {
     cursor: pointer;
     pointer-events: auto;
@@ -20,6 +21,8 @@
     width: 200px;
     height: 200px;
   }
+
+
 
   .sold-out-css {
     border-radius: 9999px;
@@ -72,26 +75,12 @@
         <strong class="text-gray-900 text-sm italic">Product Details</strong>
       </div>
       <div class="lg:px-8">
-        <span class="  italic text-[12px]">
-          @if ($product_info -> product_description1)
-          {{$product_info -> product_description1}}
-          @endif
-        </span>
         <ul class="my-3 ml-3 lg:mt-6 lg:ml-5 ">
-          @if ($product_info -> product_description2)
-          <li class="text-xs italic">- {{$product_info -> product_description2}}</li>
-          @endif
-          @if ($product_info -> product_description3)
-          <li class="text-xs italic">- {{$product_info -> product_description3}}</li>
-          @endif
-          @if ($product_info -> product_description4)
-          <li class="text-xs italic">- {{$product_info -> product_description4}}</li>
-          @endif
-          @if ($product_info -> product_description5)
-          <li class="text-xs italic">- {{$product_info -> product_description5}}</li>
-          @endif
-          @if ($product_info -> product_description6)
-          <li class="text-xs italic">- {{$product_info -> product_description6}}</li>
+          @if (isset($productDetails))
+          @foreach ($productDetails as $detail )
+          <li class="text-xs">- {{$detail -> description}}</li>
+          @endforeach
+
           @endif
         </ul>
         <div class=" mt-9 italic  text-[12px]">
